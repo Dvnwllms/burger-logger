@@ -1,61 +1,55 @@
-var express = require("express");
-
+/*
+Here is where you create all the 
+functions that will do the routing for your app, 
+and the logic of each route.
+*/
+var express = require('express');
 var router = express.Router();
+var burgers = require('../models/burger.js');
 
-// Import the model burger.js to use its database functions.
-var burgers = require("../models/burger.js");
-
-// Create all our routes and set up logic within those routes where required.
-router.get("/", function(req, res) {
-  burgers.all(function(data) {
-    var hbsObject = {
-      burger: data
-    };
-    console.log(hbsObject);
-    res.render("index", hbsObject);
-  });
+router.get('/', function (req, res) {
+	res.redirect('/burgers');
 });
 
-router.post("/api/burgers", function(req, res) {
-  burger.create([
-    "name", "devoured"
-  ], [
-    req.body.name, req.body.devoured
-  ], function(result) {
-    // Send back the ID of the new quote
-    res.json({ id: result.insertId });
-  });
+
+router.get('/burgers', function (req, res) {
+	burgers.all(function (data) {
+		console.log(data)
+		var hbsObject = { burgers: data };
+		console.log(hbsObject);
+		res.render('index', hbsObject);
+	});
 });
 
-router.put("/api/burgers/:id", function(req, res) {
-  var condition = "id = " + req.params.id;
 
-  console.log("condition", condition);
 
-  burger.update({
-    devoured: req.body.sleepy
-  }, condition, function(result) {
-    if (result.changedRows == 0) {
-      // If no rows were changed, then the ID must not exist, so 404
-      return res.status(404).end();
-    } else {
-      res.status(200).end();
-    }
-  });
+router.post('/burgers/create', function (req, res) {
+	console.log("working???")
+	burgers.create('burger_name', [req.body.name], function () {
+		res.redirect('/burgers');
+	});
 });
 
-router.delete("/api/burgers/:id", function(req, res) {
-  var condition = "id = " + req.params.id;
 
-  burger.delete(condition, function(result) {
-    if (result.affectedRows == 0) {
-      // If no rows were changed, then the ID must not exist, so 404
-      return res.status(404).end();
-    } else {
-      res.status(200).end();
-    }
-  });
+router.put('/burgers/update/:id', function (req, res) {
+	var condition = 'id = ' + req.params.id;
+
+	console.log('condition', condition);
+
+	//burgers.update({devoured: req.body.sleepy }, condition, function () {difference?
+	burgers.update('devoured',req.body.devoured,condition, function () {
+
+		res.redirect('/burgers');
+	});
 });
 
-// Export routes for server.js to use. //
+router.delete('/burgers/delete/:id', function (req, res) {
+	var condition = 'id = ' + req.params.id;   //params = object property
+
+	burgers.delete(condition, function () {
+		res.redirect('/burgers');
+	});
+});
+
+
 module.exports = router;
